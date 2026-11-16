@@ -2,15 +2,15 @@ package model;
 
 import exceptions.InsufficientFundsException;
 import exceptions.InsufficientSharesException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Trader extends User {
-    // symbol -> holding
-    private HashMap<String, Holding> holdings;
+    private ArrayList<Holding> holdings;
 
     public Trader(String id, String name, String password, double walletBalance) {
         super(id, name, password, walletBalance);
-        this.holdings = new HashMap<>();
+        this.holdings = new ArrayList<>();
     }
 
     @Override
@@ -18,8 +18,17 @@ public class Trader extends User {
         return "Trader";
     }
 
-    public HashMap<String, Holding> getHoldings() {
+    public ArrayList<Holding> getHoldings() {
         return holdings;
+    }
+
+    private Holding findHolding(String symbol) {
+        for (Holding h : holdings) {
+            if (h.getSymbol().equals(symbol)) {
+                return h;
+            }
+        }
+        return null;
     }
 
     public void buy(Tradable stock, int quantity) throws InsufficientFundsException {
@@ -33,9 +42,9 @@ public class Trader extends User {
                 + " but wallet has " + String.format("%.2f", getWalletBalance()));
         }
         withdraw(totalCost);
-        Holding existing = holdings.get(stock.getSymbol());
+        Holding existing = findHolding(stock.getSymbol());
         if (existing == null) {
-            holdings.put(stock.getSymbol(), new Holding(stock.getSymbol(), quantity, stock.getPrice()));
+            holdings.add(new Holding(stock.getSymbol(), quantity, stock.getPrice()));
         } else {
             existing.addShares(quantity, stock.getPrice());
         }
@@ -45,7 +54,7 @@ public class Trader extends User {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be at least 1.");
         }
-        Holding existing = holdings.get(stock.getSymbol());
+        Holding existing = findHolding(stock.getSymbol());
         int owned = (existing == null) ? 0 : existing.getQuantity();
         if (quantity > owned) {
             throw new InsufficientSharesException(
@@ -55,15 +64,14 @@ public class Trader extends User {
         deposit(stock.getPrice() * quantity);
         existing.removeShares(quantity);
         if (existing.getQuantity() == 0) {
-            holdings.remove(stock.getSymbol());
+            holdings.remove(existing);
         }
     }
 
-    // Total value of all shares owned, at the given stock prices.
-    public double getPortfolioValue(java.util.List<Stock> market) {
+    public double getPortfolioValue(List<Stock> market) {
         double total = 0;
         for (Stock s : market) {
-            Holding h = holdings.get(s.getSymbol());
+            Holding h = findHolding(s.getSymbol());
             if (h != null) {
                 total += h.getQuantity() * s.getPrice();
             }
@@ -72,7 +80,7 @@ public class Trader extends User {
     }
 
     public double getProfitLoss(Stock stock) {
-        Holding h = holdings.get(stock.getSymbol());
+        Holding h = findHolding(stock.getSymbol());
         return (h == null) ? 0 : h.getProfitLoss(stock.getPrice());
     }
 }

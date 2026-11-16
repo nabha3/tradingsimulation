@@ -1,6 +1,5 @@
 package model;
 
-// Abstract: you can create a Trader or an Admin, but never a plain User.
 public abstract class User {
     private String id;
     private String name;
@@ -38,7 +37,6 @@ public abstract class User {
         walletBalance -= amount;
     }
 
-    // Each subclass says what kind of user it is (method overriding).
     public abstract String getRole();
 
     @Override

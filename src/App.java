@@ -7,7 +7,6 @@ import model.User;
 
 import java.util.ArrayList;
 
-// Console test for the core model. Run this after every change.
 public class App {
     public static void main(String[] args) {
         ArrayList<Stock> market = new ArrayList<>();

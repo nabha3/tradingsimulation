@@ -28,7 +28,6 @@ public class Stock implements Tradable {
         return priceHistory;
     }
 
-    // Updates the price and records it in the history (used by the price engine later).
     public void setPrice(double newPrice) {
         this.price = newPrice;
         this.priceHistory.add(newPrice);

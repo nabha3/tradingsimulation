@@ -23,15 +23,14 @@ public class Holding {
         return averageBuyPrice;
     }
 
-    // Buying more: recalculate the average price.
-    // Example: 10 shares at 100 + 10 shares at 200 -> average 150.
+    
     public void addShares(int extraQuantity, double buyPrice) {
         double totalCost = averageBuyPrice * quantity + buyPrice * extraQuantity;
         quantity += extraQuantity;
         averageBuyPrice = totalCost / quantity;
     }
 
-    // Selling: the average buy price does not change.
+    
     public void removeShares(int soldQuantity) {
         quantity -= soldQuantity;
     }
