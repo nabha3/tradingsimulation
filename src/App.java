@@ -42,6 +42,12 @@ public class App {
             System.out.println("Caught: " + e.getMessage());
         }
 
+        // Trade history (only successful trades are recorded).
+        System.out.println("--- History ---");
+        for (model.Transaction tx : t.getHistory()) {
+            System.out.println(tx);
+        }
+
         // Polymorphism: a User variable can hold a Trader or an Admin.
         User[] users = { t, new Admin("A1", "Boss", "admin") };
         for (User u : users) {

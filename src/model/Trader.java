@@ -7,15 +7,21 @@ import java.util.List;
 
 public class Trader extends User {
     private ArrayList<Holding> holdings;
+    private ArrayList<Transaction> history;   // all completed trades, oldest first
 
     public Trader(String id, String name, String password, double walletBalance) {
         super(id, name, password, walletBalance);
         this.holdings = new ArrayList<>();
+        this.history = new ArrayList<>();
     }
 
     @Override
     public String getRole() {
         return "Trader";
+    }
+
+    public ArrayList<Transaction> getHistory() {
+        return history;
     }
 
     public ArrayList<Holding> getHoldings() {
@@ -48,6 +54,7 @@ public class Trader extends User {
         } else {
             existing.addShares(quantity, stock.getPrice());
         }
+        history.add(new Transaction("BUY", stock.getSymbol(), quantity, stock.getPrice()));
     }
 
     public void sell(Tradable stock, int quantity) throws InsufficientSharesException {
@@ -66,6 +73,7 @@ public class Trader extends User {
         if (existing.getQuantity() == 0) {
             holdings.remove(existing);
         }
+        history.add(new Transaction("SELL", stock.getSymbol(), quantity, stock.getPrice()));
     }
 
     public double getPortfolioValue(List<Stock> market) {
