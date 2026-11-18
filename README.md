@@ -114,10 +114,15 @@ classDiagram
 | `Stock` | Implements `Tradable`. Keeps its price history |
 | `Market` | Holds all stocks and moves their prices randomly on each update |
 | `MarketListener` | Interface for anything that wants to hear about price changes |
+| `LoginFrame` | Swing login window (ID, password, Login button, error message) |
+| `MainFrame` | Window shown after login. A placeholder for now |
+| `UserRegistry` | Stores all users and checks logins |
 | `Holding` | A position, such as "5 shares of TCS at an average of 100" |
 | `Transaction` | One history entry, such as "BUY 10 TCS @ 100 at 12:30" |
 | `InsufficientFundsException` | Thrown when a buy costs more than the wallet holds |
 | `InsufficientSharesException` | Thrown when a sale exceeds the shares owned |
+| `UserNotFoundException` | Thrown at login when the ID does not exist |
+| `WrongPasswordException` | Thrown at login when the password is wrong |
 
 ## OOP concepts used
 
@@ -128,12 +133,13 @@ classDiagram
 | Polymorphism | A `User` variable can hold a `Trader` or an `Admin` |
 | Interface | `Tradable` (implemented by `Stock`) and `MarketListener` |
 | Observer pattern | `Market` notifies its `MarketListener`s when prices change |
-| Anonymous class | The listener created in `App.java` |
+| Anonymous class | The listeners in `LoginFrame`, `App` and `ConsoleDemo` |
+| GUI and event handling | `LoginFrame`: Swing components, layout managers, `ActionListener` |
 | Iterator | Removing a stock safely in `Market` and `Admin` |
 | Encapsulation | Private fields with getters, such as `walletBalance` and the final fields of `Transaction` |
 | Method overriding | `getRole()` and `toString()` |
 | Custom exceptions | The `exceptions` package |
-| Exception handling | `try` / `catch` in `App.java` |
+| Exception handling | `try` / `catch` in `LoginFrame` and `ConsoleDemo` |
 | Collections | `ArrayList` for stocks, holdings and transactions |
 | Packages | `model` and `exceptions` |
 | Constructors, `this`, `super` | All model classes |
@@ -144,7 +150,7 @@ classDiagram
 flowchart LR
     A["✅ Core model"] --> B["✅ Transaction history"]
     B --> C["✅ Market with moving prices"]
-    C --> D["⬜ Swing GUI"]
+    C --> D["🟡 Swing GUI (login done)"]
     D --> E["⬜ Live price chart"]
     E --> F["⬜ Save and load data"]
     F --> G["⬜ Report and demo"]
@@ -155,10 +161,11 @@ flowchart LR
 - [x] `Transaction` class and per-trader trade history
 - [x] `Market` class with random price movement and Observer notifications
 - [ ] Swing `Timer` that calls `Market.updatePrices()` automatically
-- [ ] Swing GUI: login, market table, buy/sell, portfolio, admin panel
+- [x] Swing login screen
+- [ ] Swing GUI: market table, buy/sell, portfolio, admin panel
 - [ ] Live price chart
 - [ ] Save and load users, holdings and transactions
-- [ ] Input validation and login exceptions
+- [ ] Input validation (invalid quantity exception)
 
 ## Getting started
 
@@ -167,11 +174,19 @@ Requires **JDK 21 or newer**.
 ```bash
 git clone https://github.com/nabha3/tradingsimulation.git
 cd tradingsimulation
-javac -d bin src/App.java src/model/*.java src/exceptions/*.java
-java -cp bin App
+javac -d bin src/*.java src/gui/*.java src/model/*.java src/exceptions/*.java
+java -cp bin App            # opens the login window
+java -cp bin ConsoleDemo    # optional: the text-only demo
 ```
 
-Expected output (timestamps will differ):
+Demo accounts for the login screen:
+
+| Role | ID | Password |
+|---|---|---|
+| Trader | `trader1` | `pass123` |
+| Admin | `admin` | `admin123` |
+
+Expected output of `ConsoleDemo` (timestamps and prices will differ):
 
 ```text
 Trader Nabha (wallet 10000.00)
@@ -192,14 +207,20 @@ Trader -> Trader Nabha (wallet 9500.00)
 Admin -> Admin Boss (wallet 0.00)
 ```
 
-The project is currently a console demo. The GUI is planned next.
+![Login screen](docs/login-screen.png)
+
+The login screen works. After logging in, a placeholder main window opens. The market table, trading panel and portfolio view come next.
 
 ## Project structure
 
 ```text
 tradingsimulation/
 ├── src/
-│   ├── App.java                 # console demo (entry point)
+│   ├── App.java                 # starts the GUI
+│   ├── ConsoleDemo.java         # text-only demo
+│   ├── gui/
+│   │   ├── LoginFrame.java
+│   │   └── MainFrame.java
 │   ├── model/
 │   │   ├── User.java
 │   │   ├── Trader.java
@@ -209,10 +230,13 @@ tradingsimulation/
 │   │   ├── Market.java
 │   │   ├── MarketListener.java
 │   │   ├── Transaction.java
+│   │   ├── UserRegistry.java
 │   │   └── Tradable.java
 │   └── exceptions/
 │       ├── InsufficientFundsException.java
-│       └── InsufficientSharesException.java
+│       ├── InsufficientSharesException.java
+│       ├── UserNotFoundException.java
+│       └── WrongPasswordException.java
 └── README.md
 ```
 
