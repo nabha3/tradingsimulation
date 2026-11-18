@@ -8,7 +8,7 @@ Practice trading stocks with virtual money. Learn how the market works without r
 ![Status](https://img.shields.io/badge/status-in%20progress-yellow)
 ![Course](https://img.shields.io/badge/CS%20F213-OOP-green)
 
-**Team TLE:** Adwait Misra (leader) · Muhammad Owais Husain Puthuveetil · Kaviish Agrawal · Nabha Birjerane
+**Team TLE:** Adwait Misra · Muhammad Owais Husain Puthuveetil · Kaviish Agrawal · Nabha Birjerane
 
 ---
 
