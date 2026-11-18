@@ -1,5 +1,6 @@
 package model;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class Admin extends User {
@@ -17,7 +18,16 @@ public class Admin extends User {
         market.add(stock);
     }
 
+    /** Removes the stock with the given symbol. Returns true if it was found. */
     public boolean removeStock(List<Stock> market, String symbol) {
-        return market.removeIf(s -> s.getSymbol().equals(symbol));
+        Iterator<Stock> it = market.iterator();
+        while (it.hasNext()) {
+            Stock s = it.next();
+            if (s.getSymbol().equals(symbol)) {
+                it.remove();    // safe way to delete while looping
+                return true;
+            }
+        }
+        return false;
     }
 }
