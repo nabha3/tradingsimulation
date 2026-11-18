@@ -1,6 +1,8 @@
 import exceptions.InsufficientFundsException;
 import exceptions.InsufficientSharesException;
 import model.Admin;
+import model.Market;
+import model.MarketListener;
 import model.Stock;
 import model.Trader;
 import model.User;
@@ -40,6 +42,21 @@ public class App {
             t.sell(tcs, 99);                         // owns only 5 -> exception
         } catch (InsufficientSharesException e) {
             System.out.println("Caught: " + e.getMessage());
+        }
+
+        // Market demo: prices move randomly and a listener is told each time.
+        Market liveMarket = new Market();
+        liveMarket.addStock(new Stock("TCS", 100));
+        liveMarket.addStock(new Stock("INFY", 50));
+        liveMarket.addListener(new MarketListener() {   // anonymous class
+            @Override
+            public void onPricesChanged() {
+                System.out.println("Prices changed: " + liveMarket.getStocks());
+            }
+        });
+        System.out.println("--- Market ---");
+        for (int i = 0; i < 3; i++) {
+            liveMarket.updatePrices();
         }
 
         // Trade history (only successful trades are recorded).
