@@ -7,8 +7,9 @@ import model.User;
 import model.UserRegistry;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,7 +25,7 @@ import javax.swing.SwingConstants;
 /**
  * The first screen of BullRun. The user types an id and a password and
  * presses Login. On success the main window opens; on failure an error
- * message is shown under the form.
+ * message is shown under the button.
  */
 public class LoginFrame extends JFrame {
     private UserRegistry registry;
@@ -42,36 +43,54 @@ public class LoginFrame extends JFrame {
 
     // Creates all the components and adds them to the window.
     private void buildScreen() {
-        setTitle("BullRun - Login");
+        setTitle("BullRun");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
 
-        // Top: the title
-        JLabel title = new JLabel("BullRun", SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.BOLD, 28));
-        title.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
-        add(title, BorderLayout.NORTH);
+        // The window background is dark; the login card sits in the middle of it.
+        JPanel background = new JPanel(new GridBagLayout());
+        background.setBackground(Theme.BACKGROUND);
+        setContentPane(background);
 
-        // Middle: labels and text fields in a 2-column grid
-        JPanel form = new JPanel(new GridLayout(2, 2, 10, 10));
-        form.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        Theme.CardPanel card = new Theme.CardPanel();
+        card.setLayout(new BorderLayout(0, 24));
+        card.setBorder(BorderFactory.createEmptyBorder(36, 36, 32, 36));
+        card.setPreferredSize(new Dimension(380, 470));
+
+        // Top: logo and a short tagline
+        JPanel top = new JPanel(new GridLayout(2, 1, 0, 4));
+        top.setOpaque(false);
+        top.add(Theme.createLogo(34));
+        JLabel tagline = new JLabel("Virtual stock trading, zero risk", SwingConstants.CENTER);
+        tagline.setFont(Theme.font(Font.PLAIN, 13));
+        tagline.setForeground(Theme.MUTED);
+        top.add(tagline);
+        card.add(top, BorderLayout.NORTH);
+
+        // Middle: captions and fields, one under the other
+        JPanel form = new JPanel(new GridLayout(4, 1, 0, 6));
+        form.setOpaque(false);
         idField = new JTextField();
         passwordField = new JPasswordField();
-        form.add(new JLabel("User ID:"));
+        Theme.styleField(idField);
+        Theme.styleField(passwordField);
+        form.add(Theme.createCaption("USER ID"));
         form.add(idField);
-        form.add(new JLabel("Password:"));
+        form.add(Theme.createCaption("PASSWORD"));
         form.add(passwordField);
-        add(form, BorderLayout.CENTER);
+        card.add(form, BorderLayout.CENTER);
 
-        // Bottom: login button and the message label
-        JPanel bottom = new JPanel(new GridLayout(2, 1, 5, 5));
-        bottom.setBorder(BorderFactory.createEmptyBorder(0, 30, 15, 30));
-        JButton loginButton = new JButton("Login");
+        // Bottom: login button and the message line
+        JPanel bottom = new JPanel(new BorderLayout(0, 10));
+        bottom.setOpaque(false);
+        JButton loginButton = Theme.createPrimaryButton("Log in");
         messageLabel = new JLabel(" ", SwingConstants.CENTER);
-        messageLabel.setForeground(Color.RED);
-        bottom.add(loginButton);
-        bottom.add(messageLabel);
-        add(bottom, BorderLayout.SOUTH);
+        messageLabel.setFont(Theme.font(Font.PLAIN, 13));
+        messageLabel.setForeground(Theme.RED);
+        bottom.add(loginButton, BorderLayout.CENTER);
+        bottom.add(messageLabel, BorderLayout.SOUTH);
+        card.add(bottom, BorderLayout.SOUTH);
+
+        background.add(card);
 
         // Event handling: both the button and the Enter key run the same code.
         ActionListener loginAction = new ActionListener() {
@@ -83,7 +102,7 @@ public class LoginFrame extends JFrame {
         loginButton.addActionListener(loginAction);
         passwordField.addActionListener(loginAction);
 
-        setSize(360, 270);
+        setSize(520, 600);
         setLocationRelativeTo(null);    // centre on screen
     }
 
