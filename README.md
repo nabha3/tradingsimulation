@@ -114,8 +114,12 @@ classDiagram
 | `Stock` | Implements `Tradable`. Keeps its price history |
 | `Market` | Holds all stocks and moves their prices randomly on each update |
 | `MarketListener` | Interface for anything that wants to hear about price changes |
-| `LoginFrame` | Swing login window (ID, password, Login button, error message) |
-| `MainFrame` | Main window with a tabbed pane. The Market tab shows a live price table. It is a `MarketListener` |
+| `LoginFrame` | First window: shows the welcome slides, then the login card, over a moving chart background |
+| `OnboardingPanel` | Three animated welcome slides (coin, live chart, donut) with Next and Skip |
+| `AnimatedBackground` | Scrolling price lines drawn behind the welcome screens |
+| `FadePanel` | A panel that can fade and slide in or out. Base class for the card panels |
+| `MainFrame` | Main window: header with page buttons, wallet and clock; overview cards, search and a sortable price table with trend lines. A `MarketListener` |
+| `Theme` | Colours, fonts and small styled components shared by every window |
 | `UserRegistry` | Stores all users and checks logins |
 | `Holding` | A position, such as "5 shares of TCS at an average of 100" |
 | `Transaction` | One history entry, such as "BUY 10 TCS @ 100 at 12:30" |
@@ -134,8 +138,11 @@ classDiagram
 | Interface | `Tradable` (implemented by `Stock`) and `MarketListener` |
 | Observer pattern | `Market` notifies its `MarketListener`s when prices change |
 | Anonymous class | The listeners in `LoginFrame`, `App` and `ConsoleDemo` |
-| GUI and event handling | `LoginFrame` and `MainFrame`: Swing components, layout managers, `ActionListener`, `Timer` |
-| Inner class | `ChangeRenderer` in `MainFrame` colours the Change column |
+| GUI and event handling | Swing components, `BorderLayout`, `GridLayout`, `CardLayout`, `ActionListener`, `MouseAdapter`, `KeyAdapter`, custom painting |
+| Animation | Swing `Timer` plus `repaint()`: fades, sliding underline, count-up wallet, price flash |
+| Comparator | Sorting the market table by symbol, price, change or change % |
+| HashMap | Remembers the price flash of each stock in `MainFrame` |
+| Inner classes | `NavBar`, `CellRenderer`, `SparkRenderer`, `HeaderRenderer` in `MainFrame`; `RoundedButton` and `CardPanel` in `Theme` |
 | Iterator | Removing a stock safely in `Market` and `Admin` |
 | Encapsulation | Private fields with getters, such as `walletBalance` and the final fields of `Transaction` |
 | Method overriding | `getRole()` and `toString()` |
@@ -209,11 +216,14 @@ Trader -> Trader Nabha (wallet 9500.00)
 Admin -> Admin Boss (wallet 0.00)
 ```
 
-![Login screen](docs/login-screen.png)
+![BullRun preview](docs/preview.gif)
 
-Logging in opens the main window, where the market table updates every 2 seconds. The trading panel, portfolio view and admin panel come next as new tabs.
+| Welcome slides | Login | Market |
+|---|---|---|
+| ![Slides](docs/onboarding-screen.png) | ![Login](docs/login-screen.png) | ![Market](docs/market-screen.png) |
 
-![Market table](docs/market-screen.png)
+Welcome slides, login, then a live market that updates every 2 seconds. The trading panel, portfolio view and admin panel come next as new pages in the header.
+
 
 ## Project structure
 
@@ -224,6 +234,10 @@ tradingsimulation/
 │   ├── ConsoleDemo.java         # text-only demo
 │   ├── gui/
 │   │   ├── LoginFrame.java
+│   │   ├── Theme.java
+│   │   ├── FadePanel.java
+│   │   ├── AnimatedBackground.java
+│   │   ├── OnboardingPanel.java
 │   │   └── MainFrame.java
 │   ├── model/
 │   │   ├── User.java
