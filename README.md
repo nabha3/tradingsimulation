@@ -115,7 +115,7 @@ classDiagram
 | `Market` | Holds all stocks and moves their prices randomly on each update |
 | `MarketListener` | Interface for anything that wants to hear about price changes |
 | `LoginFrame` | Swing login window (ID, password, Login button, error message) |
-| `MainFrame` | Window shown after login. A placeholder for now |
+| `MainFrame` | Main window with a tabbed pane. The Market tab shows a live price table. It is a `MarketListener` |
 | `UserRegistry` | Stores all users and checks logins |
 | `Holding` | A position, such as "5 shares of TCS at an average of 100" |
 | `Transaction` | One history entry, such as "BUY 10 TCS @ 100 at 12:30" |
@@ -134,7 +134,8 @@ classDiagram
 | Interface | `Tradable` (implemented by `Stock`) and `MarketListener` |
 | Observer pattern | `Market` notifies its `MarketListener`s when prices change |
 | Anonymous class | The listeners in `LoginFrame`, `App` and `ConsoleDemo` |
-| GUI and event handling | `LoginFrame`: Swing components, layout managers, `ActionListener` |
+| GUI and event handling | `LoginFrame` and `MainFrame`: Swing components, layout managers, `ActionListener`, `Timer` |
+| Inner class | `ChangeRenderer` in `MainFrame` colours the Change column |
 | Iterator | Removing a stock safely in `Market` and `Admin` |
 | Encapsulation | Private fields with getters, such as `walletBalance` and the final fields of `Transaction` |
 | Method overriding | `getRole()` and `toString()` |
@@ -150,7 +151,7 @@ classDiagram
 flowchart LR
     A["✅ Core model"] --> B["✅ Transaction history"]
     B --> C["✅ Market with moving prices"]
-    C --> D["🟡 Swing GUI (login done)"]
+    C --> D["🟡 Swing GUI (login and market table done)"]
     D --> E["⬜ Live price chart"]
     E --> F["⬜ Save and load data"]
     F --> G["⬜ Report and demo"]
@@ -160,9 +161,10 @@ flowchart LR
 - [x] Custom exceptions for invalid trades
 - [x] `Transaction` class and per-trader trade history
 - [x] `Market` class with random price movement and Observer notifications
-- [ ] Swing `Timer` that calls `Market.updatePrices()` automatically
+- [x] Swing `Timer` that calls `Market.updatePrices()` automatically
 - [x] Swing login screen
-- [ ] Swing GUI: market table, buy/sell, portfolio, admin panel
+- [x] Market table with colour-coded price changes
+- [ ] Buy/sell panel, portfolio view, admin panel (new tabs in `MainFrame`)
 - [ ] Live price chart
 - [ ] Save and load users, holdings and transactions
 - [ ] Input validation (invalid quantity exception)
@@ -209,7 +211,9 @@ Admin -> Admin Boss (wallet 0.00)
 
 ![Login screen](docs/login-screen.png)
 
-The login screen works. After logging in, a placeholder main window opens. The market table, trading panel and portfolio view come next.
+Logging in opens the main window, where the market table updates every 2 seconds. The trading panel, portfolio view and admin panel come next as new tabs.
+
+![Market table](docs/market-screen.png)
 
 ## Project structure
 

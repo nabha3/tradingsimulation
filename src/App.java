@@ -1,12 +1,15 @@
 import gui.LoginFrame;
 import model.Admin;
+import model.Market;
+import model.Stock;
 import model.Trader;
 import model.UserRegistry;
 
 import javax.swing.SwingUtilities;
 
 /**
- * Entry point of BullRun. It creates a few demo accounts and opens the login window.
+ * Entry point of BullRun. It creates the demo accounts and the market,
+ * then opens the login window.
  * (The old console demo is kept in ConsoleDemo.java.)
  */
 public class App {
@@ -15,11 +18,18 @@ public class App {
         registry.addUser(new Trader("trader1", "Nabha", "pass123", 10000));
         registry.addUser(new Admin("admin", "Boss", "admin123"));
 
+        final Market market = new Market();
+        market.addStock(new Stock("TCS", 3900));
+        market.addStock(new Stock("INFY", 1500));
+        market.addStock(new Stock("RELIANCE", 2900));
+        market.addStock(new Stock("WIPRO", 480));
+        market.addStock(new Stock("HDFCBANK", 1650));
+
         // Swing windows should be created on the event dispatch thread.
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new LoginFrame(registry).setVisible(true);
+                new LoginFrame(registry, market).setVisible(true);
             }
         });
     }

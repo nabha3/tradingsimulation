@@ -2,6 +2,7 @@ package gui;
 
 import exceptions.UserNotFoundException;
 import exceptions.WrongPasswordException;
+import model.Market;
 import model.User;
 import model.UserRegistry;
 
@@ -27,13 +28,15 @@ import javax.swing.SwingConstants;
  */
 public class LoginFrame extends JFrame {
     private UserRegistry registry;
+    private Market market;
 
     private JTextField idField;
     private JPasswordField passwordField;
     private JLabel messageLabel;
 
-    public LoginFrame(UserRegistry registry) {
+    public LoginFrame(UserRegistry registry, Market market) {
         this.registry = registry;
+        this.market = market;
         buildScreen();
     }
 
@@ -96,7 +99,7 @@ public class LoginFrame extends JFrame {
 
         try {
             User user = registry.login(id, password);
-            new MainFrame(user).setVisible(true);
+            new MainFrame(user, market).setVisible(true);
             dispose();                                  // close the login window
         } catch (UserNotFoundException e) {
             messageLabel.setText(e.getMessage());
