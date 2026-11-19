@@ -7,6 +7,7 @@ import model.User;
 import model.UserRegistry;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
@@ -23,13 +24,22 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 /**
- * The first screen of BullRun. The user types an id and a password and
- * presses Login. On success the main window opens; on failure an error
- * message is shown under the button.
+ * The first window of BullRun.
+ *
+ * It shows two things one after the other on top of a moving chart background:
+ *   1. the welcome slides (OnboardingPanel)
+ *   2. the login card
+ * When the slides finish they fade out and the login card fades in.
+ * After a correct login the main window opens.
  */
 public class LoginFrame extends JFrame {
     private UserRegistry registry;
     private Market market;
+
+    private JPanel stage;                    // holds the slides and the login card (CardLayout)
+    private CardLayout stageLayout;
+    private OnboardingPanel onboarding;
+    private Theme.CardPanel card;
 
     private JTextField idField;
     private JPasswordField passwordField;
@@ -41,32 +51,71 @@ public class LoginFrame extends JFrame {
         buildScreen();
     }
 
-    // Creates all the components and adds them to the window.
+    // Creates the background, the slides and the login card.
     private void buildScreen() {
         setTitle("BullRun");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // The window background is dark; the login card sits in the middle of it.
-        JPanel background = new JPanel(new GridBagLayout());
-        background.setBackground(Theme.BACKGROUND);
+        AnimatedBackground background = new AnimatedBackground();
+        background.setLayout(new BorderLayout());
         setContentPane(background);
 
-        Theme.CardPanel card = new Theme.CardPanel();
+        stageLayout = new CardLayout();
+        stage = new JPanel(stageLayout);
+        stage.setOpaque(false);
+        background.add(stage, BorderLayout.CENTER);
+
+        // First thing the user sees: the welcome slides
+        onboarding = new OnboardingPanel(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showLogin();
+            }
+        });
+        stage.add(onboarding, "slides");
+
+        // Second thing: the login card, centred on the screen
+        JPanel loginPage = new JPanel(new GridBagLayout());
+        loginPage.setOpaque(false);
+        buildCard();
+        loginPage.add(card);
+        stage.add(loginPage, "login");
+
+        stageLayout.show(stage, "slides");
+        onboarding.fadeIn(700, 24);
+
+        setSize(900, 640);
+        setLocationRelativeTo(null);    // centre on screen
+    }
+
+    // Fades the slides out, then shows the login card and fades it in.
+    private void showLogin() {
+        onboarding.fadeOut(250, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stageLayout.show(stage, "login");
+                card.fadeIn(550, 30);
+                idField.requestFocusInWindow();
+            }
+        });
+    }
+
+    // Builds the login card: logo, two fields, button and message.
+    private void buildCard() {
+        card = new Theme.CardPanel();
         card.setLayout(new BorderLayout(0, 24));
         card.setBorder(BorderFactory.createEmptyBorder(36, 36, 32, 36));
         card.setPreferredSize(new Dimension(380, 470));
 
-        // Top: logo and a short tagline
         JPanel top = new JPanel(new GridLayout(2, 1, 0, 4));
         top.setOpaque(false);
         top.add(Theme.createLogo(34));
-        JLabel tagline = new JLabel("Virtual stock trading, zero risk", SwingConstants.CENTER);
+        JLabel tagline = new JLabel("Log in to your account", SwingConstants.CENTER);
         tagline.setFont(Theme.font(Font.PLAIN, 13));
         tagline.setForeground(Theme.MUTED);
         top.add(tagline);
         card.add(top, BorderLayout.NORTH);
 
-        // Middle: captions and fields, one under the other
         JPanel form = new JPanel(new GridLayout(4, 1, 0, 6));
         form.setOpaque(false);
         idField = new JTextField();
@@ -79,7 +128,6 @@ public class LoginFrame extends JFrame {
         form.add(passwordField);
         card.add(form, BorderLayout.CENTER);
 
-        // Bottom: login button and the message line
         JPanel bottom = new JPanel(new BorderLayout(0, 10));
         bottom.setOpaque(false);
         JButton loginButton = Theme.createPrimaryButton("Log in");
@@ -90,8 +138,6 @@ public class LoginFrame extends JFrame {
         bottom.add(messageLabel, BorderLayout.SOUTH);
         card.add(bottom, BorderLayout.SOUTH);
 
-        background.add(card);
-
         // Event handling: both the button and the Enter key run the same code.
         ActionListener loginAction = new ActionListener() {
             @Override
@@ -101,9 +147,6 @@ public class LoginFrame extends JFrame {
         };
         loginButton.addActionListener(loginAction);
         passwordField.addActionListener(loginAction);
-
-        setSize(520, 600);
-        setLocationRelativeTo(null);    // centre on screen
     }
 
     // Reads the fields, asks the registry to check them, and reacts to the result.
