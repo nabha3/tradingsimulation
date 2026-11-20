@@ -12,7 +12,6 @@ import model.Trader;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,7 +30,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * The Trade page, shown to traders only.
+ * The Trade tab, shown to traders only.
  *
  * Left: a table of all stocks. Click a row to choose a stock.
  * Right: a form where the trader types a quantity and presses Buy or Sell.
@@ -71,36 +70,13 @@ public class TradePanel extends JPanel implements MarketListener {
         market.addListener(this);
     }
 
-    // Creates the title, the stock table and the trading form.
+    // Creates the stock table (left) and the trading form (right).
     private void buildScreen() {
-        setLayout(new BorderLayout(0, 18));
-        setBackground(Theme.BACKGROUND);
-        setBorder(BorderFactory.createEmptyBorder(24, 24, 20, 24));
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Title
-        JPanel titles = new JPanel(new BorderLayout(0, 4));
-        titles.setOpaque(false);
-        JLabel title = new JLabel("Trade");
-        title.setFont(Theme.font(Font.BOLD, 26));
-        title.setForeground(Theme.TEXT);
-        JLabel subtitle = new JLabel("Pick a stock, enter a quantity, then buy or sell");
-        subtitle.setFont(Theme.font(Font.PLAIN, 13));
-        subtitle.setForeground(Theme.MUTED);
-        titles.add(title, BorderLayout.NORTH);
-        titles.add(subtitle, BorderLayout.CENTER);
-        add(titles, BorderLayout.NORTH);
-
-        // Left: table, right: form
-        JPanel body = new JPanel(new GridLayout(1, 2, 18, 0));
-        body.setOpaque(false);
-        body.add(buildTable());
-        body.add(buildForm());
-        add(body, BorderLayout.CENTER);
-    }
-
-    // The table of stocks. Only one row can be selected at a time.
-    private JScrollPane buildTable() {
-        String[] columns = {"SYMBOL", "PRICE"};
+        // Left: the table of stocks. Only one row can be selected at a time.
+        String[] columns = {"Symbol", "Price ($)"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -108,7 +84,7 @@ public class TradePanel extends JPanel implements MarketListener {
             }
         };
         table = new JTable(tableModel);
-        Theme.styleTable(table);
+        table.setRowHeight(24);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         // When the user clicks a row, remember which stock it is and update the form.
@@ -126,99 +102,60 @@ public class TradePanel extends JPanel implements MarketListener {
                 }
             }
         });
+        add(new JScrollPane(table), BorderLayout.CENTER);
 
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createLineBorder(Theme.BORDER, 1));
-        scroll.getViewport().setBackground(Theme.SURFACE);
-        return scroll;
-    }
+        // Right: the form
+        JPanel form = new JPanel(new GridLayout(0, 1, 5, 5));
+        form.setBorder(BorderFactory.createTitledBorder("Place an order"));
 
-    // The form on the right: selected stock, quantity, info lines, buttons, message.
-    private JPanel buildForm() {
-        Theme.CardPanel card = new Theme.CardPanel();
-        card.setLayout(new BorderLayout(0, 6));
-        card.setBorder(BorderFactory.createEmptyBorder(16, 26, 14, 26));
-
-        // Top: which stock is selected, and its price
-        JPanel top = new JPanel(new GridLayout(3, 1, 0, 0));
-        top.setOpaque(false);
-        top.add(Theme.createCaption("SELECTED STOCK"));
-        stockLabel = new JLabel("Select a stock");
-        stockLabel.setFont(Theme.font(Font.BOLD, 26));
-        stockLabel.setForeground(Theme.TEXT);
-        top.add(stockLabel);
-        priceLabel = new JLabel("-");
-        priceLabel.setFont(Theme.font(Font.PLAIN, 15));
-        priceLabel.setForeground(Theme.GREEN);
-        top.add(priceLabel);
-        card.add(top, BorderLayout.NORTH);
-
-        // Middle: quantity field and information lines
-        JPanel middle = new JPanel(new BorderLayout(0, 6));
-        middle.setOpaque(false);
-        JPanel quantityBlock = new JPanel(new BorderLayout(0, 6));
-        quantityBlock.setOpaque(false);
-        quantityBlock.add(Theme.createCaption("QUANTITY"), BorderLayout.NORTH);
+        stockLabel = new JLabel();
+        priceLabel = new JLabel();
         quantityField = new JTextField();
-        Theme.styleField(quantityField);
-        quantityField.setPreferredSize(new Dimension(100, 38));
+        totalLabel = new JLabel();
+        ownedLabel = new JLabel();
+        walletLabel = new JLabel();
+        messageLabel = new JLabel(" ");
+
+        // show the new total while the user types
         quantityField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                updateInfo();               // show the new total while typing
+                updateInfo();
             }
         });
-        quantityBlock.add(quantityField, BorderLayout.CENTER);
-        middle.add(quantityBlock, BorderLayout.NORTH);
 
-        JPanel infoLines = new JPanel(new GridLayout(3, 1, 0, 0));
-        infoLines.setOpaque(false);
-        totalLabel = createInfoLabel();
-        ownedLabel = createInfoLabel();
-        walletLabel = createInfoLabel();
-        infoLines.add(totalLabel);
-        infoLines.add(ownedLabel);
-        infoLines.add(walletLabel);
-        middle.add(infoLines, BorderLayout.CENTER);
-        card.add(middle, BorderLayout.CENTER);
-
-        // Bottom: Buy and Sell buttons, and the message
-        JPanel bottom = new JPanel(new BorderLayout(0, 10));
-        bottom.setOpaque(false);
-        JPanel buttons = new JPanel(new GridLayout(1, 2, 12, 0));
-        buttons.setOpaque(false);
-        JButton buyButton = Theme.createPrimaryButton("Buy");
-        JButton sellButton = Theme.createButton("Sell", Theme.RED);
+        JButton buyButton = new JButton("Buy");
         buyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 buy();
             }
         });
+        JButton sellButton = new JButton("Sell");
         sellButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 sell();
             }
         });
+        JPanel buttons = new JPanel(new GridLayout(1, 2, 10, 0));
         buttons.add(buyButton);
         buttons.add(sellButton);
-        bottom.add(buttons, BorderLayout.NORTH);
 
-        messageLabel = new JLabel(" ");
-        messageLabel.setFont(Theme.font(Font.PLAIN, 13));
-        messageLabel.setPreferredSize(new Dimension(100, 34));
-        bottom.add(messageLabel, BorderLayout.CENTER);
-        card.add(bottom, BorderLayout.SOUTH);
+        form.add(stockLabel);
+        form.add(priceLabel);
+        form.add(new JLabel("Quantity:"));
+        form.add(quantityField);
+        form.add(totalLabel);
+        form.add(ownedLabel);
+        form.add(walletLabel);
+        form.add(buttons);
+        form.add(messageLabel);
 
-        return card;
-    }
-
-    private JLabel createInfoLabel() {
-        JLabel label = new JLabel(" ");
-        label.setFont(Theme.font(Font.PLAIN, 14));
-        label.setForeground(Theme.MUTED);
-        return label;
+        JPanel right = new JPanel(new BorderLayout());
+        right.add(form, BorderLayout.NORTH);
+        right.setPreferredSize(new Dimension(320, 100));
+        add(right, BorderLayout.EAST);
     }
 
     // ------------------------------------------------------------ trading
@@ -227,7 +164,7 @@ public class TradePanel extends JPanel implements MarketListener {
     private void buy() {
         Stock stock = getSelectedStock();
         if (stock == null) {
-            showMessage("Pick a stock from the list first.", Theme.RED);
+            showMessage("Pick a stock from the list first.", Color.RED);
             return;
         }
         int quantity = readQuantity();
@@ -238,12 +175,12 @@ public class TradePanel extends JPanel implements MarketListener {
         try {
             trader.buy(stock, quantity);
             showMessage("Bought " + quantity + " " + stock.getSymbol()
-                    + " at " + Theme.money(stock.getPrice()), Theme.GREEN);
+                    + " at $" + String.format("%.2f", stock.getPrice()), new Color(0, 130, 0));
             tradeDone();
         } catch (InsufficientFundsException e) {
-            showMessage(e.getMessage(), Theme.RED);
+            showMessage(e.getMessage(), Color.RED);
         } catch (InvalidQuantityException e) {
-            showMessage(e.getMessage(), Theme.RED);
+            showMessage(e.getMessage(), Color.RED);
         }
     }
 
@@ -251,7 +188,7 @@ public class TradePanel extends JPanel implements MarketListener {
     private void sell() {
         Stock stock = getSelectedStock();
         if (stock == null) {
-            showMessage("Pick a stock from the list first.", Theme.RED);
+            showMessage("Pick a stock from the list first.", Color.RED);
             return;
         }
         int quantity = readQuantity();
@@ -262,12 +199,12 @@ public class TradePanel extends JPanel implements MarketListener {
         try {
             trader.sell(stock, quantity);
             showMessage("Sold " + quantity + " " + stock.getSymbol()
-                    + " at " + Theme.money(stock.getPrice()), Theme.GREEN);
+                    + " at $" + String.format("%.2f", stock.getPrice()), new Color(0, 130, 0));
             tradeDone();
         } catch (InsufficientSharesException e) {
-            showMessage(e.getMessage(), Theme.RED);
+            showMessage(e.getMessage(), Color.RED);
         } catch (InvalidQuantityException e) {
-            showMessage(e.getMessage(), Theme.RED);
+            showMessage(e.getMessage(), Color.RED);
         }
     }
 
@@ -277,7 +214,7 @@ public class TradePanel extends JPanel implements MarketListener {
         try {
             return Integer.parseInt(quantityField.getText().trim());
         } catch (NumberFormatException e) {
-            showMessage("Quantity must be a whole number, for example 5.", Theme.RED);
+            showMessage("Quantity must be a whole number, for example 5.", Color.RED);
             return Integer.MIN_VALUE;
         }
     }
@@ -308,25 +245,25 @@ public class TradePanel extends JPanel implements MarketListener {
     private void updateInfo() {
         Stock stock = getSelectedStock();
         if (stock == null) {
-            stockLabel.setText("Select a stock");
-            priceLabel.setText("-");
-            totalLabel.setText("Total:  -");
-            ownedLabel.setText("You own:  -");
+            stockLabel.setText("Stock: (select one from the list)");
+            priceLabel.setText("Price: -");
+            totalLabel.setText("Total: -");
+            ownedLabel.setText("You own: -");
         } else {
-            stockLabel.setText(stock.getSymbol());
-            priceLabel.setText(Theme.money(stock.getPrice()) + " per share");
+            stockLabel.setText("Stock: " + stock.getSymbol());
+            priceLabel.setText("Price: $" + String.format("%.2f", stock.getPrice()) + " per share");
 
             // Show the total cost if the quantity field holds a valid number
             String total = "-";
             try {
                 int quantity = Integer.parseInt(quantityField.getText().trim());
                 if (quantity > 0) {
-                    total = Theme.money(stock.getPrice() * quantity);
+                    total = "$" + String.format("%,.2f", stock.getPrice() * quantity);
                 }
             } catch (NumberFormatException e) {
                 // nothing typed yet, or not a number: just show "-"
             }
-            totalLabel.setText("Total:  " + total);
+            totalLabel.setText("Total: " + total);
 
             int owned = 0;
             for (Holding h : trader.getHoldings()) {
@@ -334,9 +271,9 @@ public class TradePanel extends JPanel implements MarketListener {
                     owned = h.getQuantity();
                 }
             }
-            ownedLabel.setText("You own:  " + owned + " shares");
+            ownedLabel.setText("You own: " + owned + " shares");
         }
-        walletLabel.setText("Wallet:  " + Theme.money(trader.getWalletBalance()));
+        walletLabel.setText("Wallet: $" + String.format("%,.2f", trader.getWalletBalance()));
     }
 
     // Rebuilds the stock table and keeps the selected row selected.
@@ -348,7 +285,7 @@ public class TradePanel extends JPanel implements MarketListener {
             if (s.getSymbol().equals(selectedSymbol)) {
                 rowToSelect = tableModel.getRowCount();
             }
-            tableModel.addRow(new Object[] {s.getSymbol(), Theme.money(s.getPrice())});
+            tableModel.addRow(new Object[] {s.getSymbol(), String.format("%,.2f", s.getPrice())});
         }
         if (rowToSelect >= 0) {
             table.setRowSelectionInterval(rowToSelect, rowToSelect);
@@ -360,11 +297,6 @@ public class TradePanel extends JPanel implements MarketListener {
     @Override
     public void onPricesChanged() {
         refreshTable();
-        updateInfo();
-    }
-
-    /** Called by MainFrame (for example after a trade elsewhere) to redraw the labels. */
-    public void refresh() {
         updateInfo();
     }
 }

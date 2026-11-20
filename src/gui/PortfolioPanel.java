@@ -20,14 +20,14 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * The Portfolio page, shown to traders only.
+ * The Portfolio tab, shown to traders only.
  *
- * Top: three cards (wallet, value of all shares, total profit or loss).
+ * Top: three lines (wallet, value of all shares, total profit or loss).
  * Middle: a table of the shares the trader owns right now.
  * Bottom: a table of every trade made so far (newest first).
  *
  * It is a MarketListener, so profit/loss changes live as prices move.
- * TradePanel/MainFrame call refresh() after a trade.
+ * MainFrame calls refresh() after a trade.
  */
 public class PortfolioPanel extends JPanel implements MarketListener {
     private Trader trader;
@@ -47,51 +47,35 @@ public class PortfolioPanel extends JPanel implements MarketListener {
         market.addListener(this);
     }
 
-    // Creates the title, the cards and the two tables.
+    // Creates the summary lines and the two tables.
     private void buildScreen() {
-        setLayout(new BorderLayout(0, 18));
-        setBackground(Theme.BACKGROUND);
-        setBorder(BorderFactory.createEmptyBorder(24, 24, 20, 24));
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Top: title and the three cards
-        JPanel top = new JPanel(new BorderLayout(0, 18));
-        top.setOpaque(false);
-
-        JPanel titles = new JPanel(new BorderLayout(0, 4));
-        titles.setOpaque(false);
-        JLabel title = new JLabel("Portfolio");
-        title.setFont(Theme.font(Font.BOLD, 26));
-        title.setForeground(Theme.TEXT);
-        JLabel subtitle = new JLabel("What you own and how it is doing");
-        subtitle.setFont(Theme.font(Font.PLAIN, 13));
-        subtitle.setForeground(Theme.MUTED);
-        titles.add(title, BorderLayout.NORTH);
-        titles.add(subtitle, BorderLayout.CENTER);
-        top.add(titles, BorderLayout.NORTH);
-
-        walletLabel = new JLabel("-");
-        valueLabel = new JLabel("-");
-        profitLabel = new JLabel("-");
-        JPanel cards = new JPanel(new GridLayout(1, 3, 14, 0));
-        cards.setOpaque(false);
-        cards.add(Theme.createStatCard("WALLET", walletLabel));
-        cards.add(Theme.createStatCard("VALUE OF SHARES", valueLabel));
-        cards.add(Theme.createStatCard("PROFIT / LOSS", profitLabel));
-        top.add(cards, BorderLayout.CENTER);
-        add(top, BorderLayout.NORTH);
+        // Top: three labels side by side
+        walletLabel = new JLabel();
+        valueLabel = new JLabel();
+        profitLabel = new JLabel();
+        Font bold = new Font("SansSerif", Font.BOLD, 14);
+        walletLabel.setFont(bold);
+        valueLabel.setFont(bold);
+        profitLabel.setFont(bold);
+        JPanel summary = new JPanel(new GridLayout(1, 3, 10, 0));
+        summary.setBorder(BorderFactory.createTitledBorder("Summary"));
+        summary.add(walletLabel);
+        summary.add(valueLabel);
+        summary.add(profitLabel);
+        add(summary, BorderLayout.NORTH);
 
         // Centre: the two tables, one above the other
-        JPanel tables = new JPanel(new GridLayout(2, 1, 0, 16));
-        tables.setOpaque(false);
-
-        String[] holdingColumns = {"SYMBOL", "QUANTITY", "AVG BUY PRICE", "PRICE NOW", "VALUE", "PROFIT / LOSS"};
+        String[] holdingColumns = {"Symbol", "Quantity", "Avg buy price ($)", "Price now ($)", "Value ($)", "Profit / Loss ($)"};
         holdingsModel = createModel(holdingColumns);
-        tables.add(buildTableSection("Holdings", holdingsModel));
-
-        String[] historyColumns = {"TIME", "TYPE", "SYMBOL", "QUANTITY", "PRICE", "TOTAL"};
+        String[] historyColumns = {"Time", "Type", "Symbol", "Quantity", "Price ($)", "Total ($)"};
         historyModel = createModel(historyColumns);
-        tables.add(buildTableSection("Trade history", historyModel));
 
+        JPanel tables = new JPanel(new GridLayout(2, 1, 0, 10));
+        tables.add(buildTableSection("Holdings", holdingsModel));
+        tables.add(buildTableSection("Trade history", historyModel));
         add(tables, BorderLayout.CENTER);
     }
 
@@ -105,28 +89,16 @@ public class PortfolioPanel extends JPanel implements MarketListener {
         };
     }
 
-    // A small heading with a table underneath.
-    private JPanel buildTableSection(String heading, DefaultTableModel model) {
-        JPanel section = new JPanel(new BorderLayout(0, 8));
-        section.setOpaque(false);
-
-        JLabel label = new JLabel(heading);
-        label.setFont(Theme.font(Font.BOLD, 15));
-        label.setForeground(Theme.TEXT);
-        section.add(label, BorderLayout.NORTH);
-
+    // A table inside a scroll pane, with a title around it.
+    private JScrollPane buildTableSection(String heading, DefaultTableModel model) {
         JTable table = new JTable(model);
-        table.getColumnModel().getColumn(0).setPreferredWidth(190);     // wide enough for the time
-        Theme.styleTable(table);
-        table.setRowHeight(34);
+        table.setRowHeight(22);
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createLineBorder(Theme.BORDER, 1));
-        scroll.getViewport().setBackground(Theme.SURFACE);
-        section.add(scroll, BorderLayout.CENTER);
-        return section;
+        scroll.setBorder(BorderFactory.createTitledBorder(heading));
+        return scroll;
     }
 
-    /** Redraws the cards and both tables from the trader's current data. */
+    /** Redraws the summary and both tables from the trader's current data. */
     public void refresh() {
         // ----- holdings table and totals
         holdingsModel.setRowCount(0);
@@ -137,7 +109,7 @@ public class PortfolioPanel extends JPanel implements MarketListener {
             if (stock == null) {
                 // the admin removed this stock from the market, so there is no price any more
                 holdingsModel.addRow(new Object[] {
-                    h.getSymbol(), h.getQuantity(), Theme.money(h.getAverageBuyPrice()), "-", "-", "-"
+                    h.getSymbol(), h.getQuantity(), String.format("%.2f", h.getAverageBuyPrice()), "-", "-", "-"
                 });
             } else {
                 double value = h.getQuantity() * stock.getPrice();
@@ -145,8 +117,9 @@ public class PortfolioPanel extends JPanel implements MarketListener {
                 totalValue += value;
                 totalProfit += profit;
                 holdingsModel.addRow(new Object[] {
-                    h.getSymbol(), h.getQuantity(), Theme.money(h.getAverageBuyPrice()),
-                    Theme.money(stock.getPrice()), Theme.money(value), signedMoney(profit)
+                    h.getSymbol(), h.getQuantity(), String.format("%.2f", h.getAverageBuyPrice()),
+                    String.format("%.2f", stock.getPrice()), String.format("%,.2f", value),
+                    String.format("%+,.2f", profit)
                 });
             }
         }
@@ -159,31 +132,22 @@ public class PortfolioPanel extends JPanel implements MarketListener {
             Transaction t = history.get(i);
             historyModel.addRow(new Object[] {
                 t.getTimestamp().format(format), t.getType(), t.getSymbol(),
-                t.getQuantity(), Theme.money(t.getPrice()), Theme.money(t.getTotal())
+                t.getQuantity(), String.format("%.2f", t.getPrice()), String.format("%,.2f", t.getTotal())
             });
         }
 
-        // ----- the three cards
-        walletLabel.setText(Theme.money(trader.getWalletBalance()));
-        valueLabel.setText(Theme.money(totalValue));
-        profitLabel.setText(signedMoney(totalProfit));
-        if (totalProfit > 0.005) {
-            profitLabel.setForeground(Theme.GREEN);
-        } else if (totalProfit < -0.005) {
-            profitLabel.setForeground(Theme.RED);
-        } else {
-            profitLabel.setForeground(Theme.TEXT);
-        }
+        // ----- the summary labels
+        walletLabel.setText("Wallet: $" + String.format("%,.2f", trader.getWalletBalance()));
+        valueLabel.setText("Value of shares: $" + String.format("%,.2f", totalValue));
+        profitLabel.setText("Profit / Loss: " + signedDollars(totalProfit));
     }
 
-    // Money with a + or - in front, for example "+ ₹ 120.00" or "- ₹ 45.50".
-    private String signedMoney(double amount) {
-        if (amount > 0.005) {
-            return "+" + Theme.money(amount);
-        } else if (amount < -0.005) {
-            return "-" + Theme.money(-amount);
+    // Formats an amount with the sign in front of the dollar sign: +$12.50 or -$12.50.
+    private String signedDollars(double amount) {
+        if (amount < 0) {
+            return "-$" + String.format("%,.2f", -amount);
         }
-        return Theme.money(0);
+        return "+$" + String.format("%,.2f", amount);
     }
 
     // Called by the Market after every price update.
