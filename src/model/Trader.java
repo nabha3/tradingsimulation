@@ -2,6 +2,7 @@ package model;
 
 import exceptions.InsufficientFundsException;
 import exceptions.InsufficientSharesException;
+import exceptions.InvalidQuantityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +38,9 @@ public class Trader extends User {
         return null;
     }
 
-    public void buy(Tradable stock, int quantity) throws InsufficientFundsException {
+    public void buy(Tradable stock, int quantity) throws InsufficientFundsException, InvalidQuantityException {
         if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be at least 1.");
+            throw new InvalidQuantityException("Quantity must be at least 1.");
         }
         double totalCost = stock.getPrice() * quantity;
         if (totalCost > getWalletBalance()) {
@@ -57,9 +58,9 @@ public class Trader extends User {
         history.add(new Transaction("BUY", stock.getSymbol(), quantity, stock.getPrice()));
     }
 
-    public void sell(Tradable stock, int quantity) throws InsufficientSharesException {
+    public void sell(Tradable stock, int quantity) throws InsufficientSharesException, InvalidQuantityException {
         if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be at least 1.");
+            throw new InvalidQuantityException("Quantity must be at least 1.");
         }
         Holding existing = findHolding(stock.getSymbol());
         int owned = (existing == null) ? 0 : existing.getQuantity();

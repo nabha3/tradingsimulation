@@ -1,5 +1,7 @@
 package model;
 
+import exceptions.InvalidQuantityException;
+
 public class Holding {
     private String symbol;
     private int quantity;
@@ -31,7 +33,11 @@ public class Holding {
     }
 
     
-    public void removeShares(int soldQuantity) {
+    // Safety check: we cannot remove zero, a negative number, or more shares than we own.
+    public void removeShares(int soldQuantity) throws InvalidQuantityException {
+        if (soldQuantity <= 0 || soldQuantity > quantity) {
+            throw new InvalidQuantityException("Cannot remove " + soldQuantity + " shares from " + quantity);
+        }
         quantity -= soldQuantity;
     }
 

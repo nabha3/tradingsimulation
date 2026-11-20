@@ -1,5 +1,6 @@
 import exceptions.InsufficientFundsException;
 import exceptions.InsufficientSharesException;
+import exceptions.InvalidQuantityException;
 import model.Admin;
 import model.Market;
 import model.MarketListener;
@@ -36,11 +37,23 @@ public class ConsoleDemo {
             System.out.println("Caught: " + e.getMessage());
         } catch (InsufficientSharesException e) {
             System.out.println("Caught: " + e.getMessage());
+        } catch (InvalidQuantityException e) {
+            System.out.println("Caught: " + e.getMessage());
         }
 
         try {
             t.sell(tcs, 99);                         // owns only 5 -> exception
         } catch (InsufficientSharesException e) {
+            System.out.println("Caught: " + e.getMessage());
+        } catch (InvalidQuantityException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+
+        try {
+            t.sell(tcs, 0);                          // zero shares makes no sense -> exception
+        } catch (InsufficientSharesException e) {
+            System.out.println("Caught: " + e.getMessage());
+        } catch (InvalidQuantityException e) {
             System.out.println("Caught: " + e.getMessage());
         }
 
