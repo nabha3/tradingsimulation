@@ -119,12 +119,15 @@ classDiagram
 | `AnimatedBackground` | Scrolling price lines drawn behind the welcome screens |
 | `FadePanel` | A panel that can fade and slide in or out. Base class for the card panels |
 | `MainFrame` | Main window: header with page buttons, wallet and clock; overview cards, search and a sortable price table with trend lines. A `MarketListener` |
+| `TradePanel` | Trade page: pick a stock, enter a quantity, press Buy or Sell. Shows errors from the exceptions |
+| `PortfolioPanel` | Portfolio page: wallet, value of shares, profit/loss, holdings table and trade history |
 | `Theme` | Colours, fonts and small styled components shared by every window |
 | `UserRegistry` | Stores all users and checks logins |
 | `Holding` | A position, such as "5 shares of TCS at an average of 100" |
 | `Transaction` | One history entry, such as "BUY 10 TCS @ 100 at 12:30" |
 | `InsufficientFundsException` | Thrown when a buy costs more than the wallet holds |
 | `InsufficientSharesException` | Thrown when a sale exceeds the shares owned |
+| `InvalidQuantityException` | Thrown when a quantity is zero, negative or more than we have |
 | `UserNotFoundException` | Thrown at login when the ID does not exist |
 | `WrongPasswordException` | Thrown at login when the password is wrong |
 
@@ -171,10 +174,11 @@ flowchart LR
 - [x] Swing `Timer` that calls `Market.updatePrices()` automatically
 - [x] Swing login screen
 - [x] Market table with colour-coded price changes
-- [ ] Buy/sell panel, portfolio view, admin panel (new tabs in `MainFrame`)
+- [x] Trade page and Portfolio page for traders
+- [ ] Admin page (add and remove stocks)
 - [ ] Live price chart
 - [ ] Save and load users, holdings and transactions
-- [ ] Input validation (invalid quantity exception)
+- [x] Input validation (invalid quantity exception)
 
 ## Getting started
 
@@ -222,6 +226,10 @@ Admin -> Admin Boss (wallet 0.00)
 |---|---|---|
 | ![Slides](docs/onboarding-screen.png) | ![Login](docs/login-screen.png) | ![Market](docs/market-screen.png) |
 
+| Trade | Portfolio |
+|---|---|
+| ![Trade](docs/trade-screen.png) | ![Portfolio](docs/portfolio-screen.png) |
+
 Welcome slides, login, then a live market that updates every 2 seconds. The trading panel, portfolio view and admin panel come next as new pages in the header.
 
 
@@ -234,6 +242,8 @@ tradingsimulation/
 │   ├── ConsoleDemo.java         # text-only demo
 │   ├── gui/
 │   │   ├── LoginFrame.java
+│   │   ├── TradePanel.java
+│   │   ├── PortfolioPanel.java
 │   │   ├── Theme.java
 │   │   ├── FadePanel.java
 │   │   ├── AnimatedBackground.java
@@ -253,6 +263,7 @@ tradingsimulation/
 │   └── exceptions/
 │       ├── InsufficientFundsException.java
 │       ├── InsufficientSharesException.java
+│       ├── InvalidQuantityException.java
 │       ├── UserNotFoundException.java
 │       └── WrongPasswordException.java
 └── README.md
