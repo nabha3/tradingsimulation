@@ -18,12 +18,14 @@ public class App {
         registry.addUser(new Trader("trader1", "Nabha", "pass123", 10000));
         registry.addUser(new Admin("admin", "Boss", "admin123"));
 
+        // Global stocks, with prices in US dollars
         final Market market = new Market();
-        market.addStock(new Stock("TCS", 3900));
-        market.addStock(new Stock("INFY", 1500));
-        market.addStock(new Stock("RELIANCE", 2900));
-        market.addStock(new Stock("WIPRO", 480));
-        market.addStock(new Stock("HDFCBANK", 1650));
+        market.addStock(new Stock("AAPL", 190));
+        market.addStock(new Stock("MSFT", 410));
+        market.addStock(new Stock("GOOGL", 175));
+        market.addStock(new Stock("AMZN", 185));
+        market.addStock(new Stock("TSLA", 240));
+        market.addStock(new Stock("NVDA", 130));
 
         // Swing windows should be created on the event dispatch thread.
         SwingUtilities.invokeLater(new Runnable() {
