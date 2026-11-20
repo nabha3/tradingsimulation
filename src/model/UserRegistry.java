@@ -25,12 +25,12 @@ public class UserRegistry {
      */
     public User login(String id, String password)
             throws UserNotFoundException, WrongPasswordException {
-        for (User u : users) {
-            if (u.getId().equals(id)) {
-                if (!u.checkPassword(password)) {
+        for (User user : users) {
+            if (user.getId().equals(id)) {
+                if (!user.checkPassword(password)) {
                     throw new WrongPasswordException("Wrong password for " + id);
                 }
-                return u;
+                return user;
             }
         }
         throw new UserNotFoundException("No user found with id " + id);

@@ -30,9 +30,9 @@ public class Trader extends User {
     }
 
     private Holding findHolding(String symbol) {
-        for (Holding h : holdings) {
-            if (h.getSymbol().equals(symbol)) {
-                return h;
+        for (Holding holding : holdings) {
+            if (holding.getSymbol().equals(symbol)) {
+                return holding;
             }
         }
         return null;
@@ -77,19 +77,19 @@ public class Trader extends User {
         history.add(new Transaction("SELL", stock.getSymbol(), quantity, stock.getPrice()));
     }
 
-    public double getPortfolioValue(List<Stock> market) {
+    public double getPortfolioValue(List<Stock> stocks) {
         double total = 0;
-        for (Stock s : market) {
-            Holding h = findHolding(s.getSymbol());
-            if (h != null) {
-                total += h.getQuantity() * s.getPrice();
+        for (Stock stock : stocks) {
+            Holding holding = findHolding(stock.getSymbol());
+            if (holding != null) {
+                total += holding.getQuantity() * stock.getPrice();
             }
         }
         return total;
     }
 
     public double getProfitLoss(Stock stock) {
-        Holding h = findHolding(stock.getSymbol());
-        return (h == null) ? 0 : h.getProfitLoss(stock.getPrice());
+        Holding holding = findHolding(stock.getSymbol());
+        return (holding == null) ? 0 : holding.getProfitLoss(stock.getPrice());
     }
 }

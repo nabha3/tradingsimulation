@@ -104,20 +104,20 @@ public class PortfolioPanel extends JPanel implements MarketListener {
         holdingsModel.setRowCount(0);
         double totalValue = 0;
         double totalProfit = 0;
-        for (Holding h : trader.getHoldings()) {
-            Stock stock = market.findStock(h.getSymbol());
+        for (Holding holding : trader.getHoldings()) {
+            Stock stock = market.findStock(holding.getSymbol());
             if (stock == null) {
                 // the admin removed this stock from the market, so there is no price any more
                 holdingsModel.addRow(new Object[] {
-                    h.getSymbol(), h.getQuantity(), String.format("%.2f", h.getAverageBuyPrice()), "-", "-", "-"
+                    holding.getSymbol(), holding.getQuantity(), String.format("%.2f", holding.getAverageBuyPrice()), "-", "-", "-"
                 });
             } else {
-                double value = h.getQuantity() * stock.getPrice();
-                double profit = h.getProfitLoss(stock.getPrice());
+                double value = holding.getQuantity() * stock.getPrice();
+                double profit = holding.getProfitLoss(stock.getPrice());
                 totalValue += value;
                 totalProfit += profit;
                 holdingsModel.addRow(new Object[] {
-                    h.getSymbol(), h.getQuantity(), String.format("%.2f", h.getAverageBuyPrice()),
+                    holding.getSymbol(), holding.getQuantity(), String.format("%.2f", holding.getAverageBuyPrice()),
                     String.format("%.2f", stock.getPrice()), String.format("%,.2f", value),
                     String.format("%+,.2f", profit)
                 });
@@ -129,10 +129,10 @@ public class PortfolioPanel extends JPanel implements MarketListener {
         historyModel.setRowCount(0);
         ArrayList<Transaction> history = trader.getHistory();
         for (int i = history.size() - 1; i >= 0; i--) {
-            Transaction t = history.get(i);
+            Transaction transaction = history.get(i);
             historyModel.addRow(new Object[] {
-                t.getTimestamp().format(format), t.getType(), t.getSymbol(),
-                t.getQuantity(), String.format("%.2f", t.getPrice()), String.format("%,.2f", t.getTotal())
+                transaction.getTimestamp().format(format), transaction.getType(), transaction.getSymbol(),
+                transaction.getQuantity(), String.format("%.2f", transaction.getPrice()), String.format("%,.2f", transaction.getTotal())
             });
         }
 

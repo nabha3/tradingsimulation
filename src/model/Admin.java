@@ -14,17 +14,17 @@ public class Admin extends User {
         return "Admin";
     }
 
-    public void addStock(List<Stock> market, Stock stock) {
-        market.add(stock);
+    public void addStock(List<Stock> stocks, Stock stock) {
+        stocks.add(stock);
     }
 
     /** Removes the stock with the given symbol. Returns true if it was found. */
-    public boolean removeStock(List<Stock> market, String symbol) {
-        Iterator<Stock> it = market.iterator();
-        while (it.hasNext()) {
-            Stock s = it.next();
-            if (s.getSymbol().equals(symbol)) {
-                it.remove();    // safe way to delete while looping
+    public boolean removeStock(List<Stock> stocks, String symbol) {
+        Iterator<Stock> iterator = stocks.iterator();
+        while (iterator.hasNext()) {
+            Stock stock = iterator.next();
+            if (stock.getSymbol().equals(symbol)) {
+                iterator.remove();    // safe way to delete while looping
                 return true;
             }
         }

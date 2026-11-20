@@ -151,18 +151,18 @@ public class MainFrame extends JFrame implements MarketListener {
     // Clears the table and fills it again from the current stock list.
     private void refreshTable() {
         tableModel.setRowCount(0);
-        for (Stock s : market.getStocks()) {
-            ArrayList<Double> history = s.getPriceHistory();
+        for (Stock stock : market.getStocks()) {
+            ArrayList<Double> history = stock.getPriceHistory();
             double change = 0;
             double percent = 0;
             if (history.size() >= 2) {
                 double previous = history.get(history.size() - 2);
-                change = s.getPrice() - previous;
+                change = stock.getPrice() - previous;
                 percent = change / previous * 100;
             }
             tableModel.addRow(new Object[] {
-                s.getSymbol(),
-                String.format("%,.2f", s.getPrice()),
+                stock.getSymbol(),
+                String.format("%,.2f", stock.getPrice()),
                 String.format("%+.2f", change),         // %+ always shows the sign
                 String.format("%+.2f%%", percent)
             });

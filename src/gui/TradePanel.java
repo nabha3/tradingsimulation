@@ -266,9 +266,9 @@ public class TradePanel extends JPanel implements MarketListener {
             totalLabel.setText("Total: " + total);
 
             int owned = 0;
-            for (Holding h : trader.getHoldings()) {
-                if (h.getSymbol().equals(stock.getSymbol())) {
-                    owned = h.getQuantity();
+            for (Holding holding : trader.getHoldings()) {
+                if (holding.getSymbol().equals(stock.getSymbol())) {
+                    owned = holding.getQuantity();
                 }
             }
             ownedLabel.setText("You own: " + owned + " shares");
@@ -281,11 +281,11 @@ public class TradePanel extends JPanel implements MarketListener {
         refreshing = true;
         tableModel.setRowCount(0);
         int rowToSelect = -1;
-        for (Stock s : market.getStocks()) {
-            if (s.getSymbol().equals(selectedSymbol)) {
+        for (Stock stock : market.getStocks()) {
+            if (stock.getSymbol().equals(selectedSymbol)) {
                 rowToSelect = tableModel.getRowCount();
             }
-            tableModel.addRow(new Object[] {s.getSymbol(), String.format("%,.2f", s.getPrice())});
+            tableModel.addRow(new Object[] {stock.getSymbol(), String.format("%,.2f", stock.getPrice())});
         }
         if (rowToSelect >= 0) {
             table.setRowSelectionInterval(rowToSelect, rowToSelect);

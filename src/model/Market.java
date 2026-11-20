@@ -36,10 +36,10 @@ public class Market {
 
     /** Removes the stock with the given symbol. Returns true if it was found. */
     public boolean removeStock(String symbol) {
-        Iterator<Stock> it = stocks.iterator();
-        while (it.hasNext()) {
-            if (it.next().getSymbol().equals(symbol)) {
-                it.remove();
+        Iterator<Stock> iterator = stocks.iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().getSymbol().equals(symbol)) {
+                iterator.remove();
                 return true;
             }
         }
@@ -48,9 +48,9 @@ public class Market {
 
     /** Returns the stock with the given symbol, or null if there is none. */
     public Stock findStock(String symbol) {
-        for (Stock s : stocks) {
-            if (s.getSymbol().equals(symbol)) {
-                return s;
+        for (Stock stock : stocks) {
+            if (stock.getSymbol().equals(symbol)) {
+                return stock;
             }
         }
         return null;
@@ -66,22 +66,22 @@ public class Market {
 
     /** Moves every stock price up or down by a random percentage, then notifies listeners. */
     public void updatePrices() {
-        for (Stock s : stocks) {
+        for (Stock stock : stocks) {
             // random.nextDouble() is between 0 and 1, so this gives a value between -5% and +5%
             double change = (random.nextDouble() * 2 - 1) * MAX_CHANGE;
-            double newPrice = s.getPrice() * (1 + change);
+            double newPrice = stock.getPrice() * (1 + change);
             newPrice = Math.round(newPrice * 100) / 100.0;   // keep two decimal places
             if (newPrice < MIN_PRICE) {
                 newPrice = MIN_PRICE;
             }
-            s.setPrice(newPrice);
+            stock.setPrice(newPrice);
         }
         notifyListeners();
     }
 
     private void notifyListeners() {
-        for (MarketListener l : listeners) {
-            l.onPricesChanged();
+        for (MarketListener listener : listeners) {
+            listener.onPricesChanged();
         }
     }
 }
