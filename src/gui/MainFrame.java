@@ -107,10 +107,28 @@ public class MainFrame extends JFrame implements MarketListener {
         this.flash = new HashMap<>();
         buildScreen();
         addPage("Market", buildMarketPage());
+        if (user instanceof Trader) {
+            addTraderPages((Trader) user);
+        }
         refreshTable(false);            // show the starting prices straight away
         refreshWallet();                // counts up from 0 to the real balance
         market.addListener(this);       // register as an observer
         startTimer();
+    }
+
+    // Traders get two more pages: Trade and Portfolio.
+    private void addTraderPages(Trader trader) {
+        final PortfolioPanel portfolio = new PortfolioPanel(trader, market);
+        TradePanel trade = new TradePanel(trader, market, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // a trade just happened: update the wallet in the header and the portfolio page
+                refreshWallet();
+                portfolio.refresh();
+            }
+        });
+        addPage("Trade", trade);
+        addPage("Portfolio", portfolio);
     }
 
     // Creates the header, the page area and the status bar.
