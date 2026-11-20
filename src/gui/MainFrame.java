@@ -330,23 +330,13 @@ public class MainFrame extends JFrame implements MarketListener {
 
         JPanel row = new JPanel(new GridLayout(1, 4, 14, 0));
         row.setOpaque(false);
-        row.add(buildStatCard("TOP GAINER", gainerLabel));
-        row.add(buildStatCard("TOP LOSER", loserLabel));
-        row.add(buildStatCard("UP / DOWN", breadthLabel));
-        row.add(buildStatCard("STOCKS LISTED", countLabel));
+        row.add(Theme.createStatCard("TOP GAINER", gainerLabel));
+        row.add(Theme.createStatCard("TOP LOSER", loserLabel));
+        row.add(Theme.createStatCard("UP / DOWN", breadthLabel));
+        row.add(Theme.createStatCard("STOCKS LISTED", countLabel));
         return row;
     }
 
-    private JPanel buildStatCard(String caption, JLabel valueLabel) {
-        Theme.CardPanel card = new Theme.CardPanel();
-        card.setLayout(new BorderLayout(0, 6));
-        card.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
-        card.add(Theme.createCaption(caption), BorderLayout.NORTH);
-        valueLabel.setFont(Theme.font(Font.BOLD, 20));
-        valueLabel.setForeground(Theme.TEXT);
-        card.add(valueLabel, BorderLayout.CENTER);
-        return card;
-    }
 
     // Builds the price table inside a scroll pane.
     private JScrollPane buildTable() {

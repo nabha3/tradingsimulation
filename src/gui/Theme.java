@@ -1,6 +1,8 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -12,6 +14,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.JTextField;
 
 /**
@@ -124,7 +129,12 @@ public class Theme {
 
     /** A green button with rounded corners. */
     public static JButton createPrimaryButton(String text) {
-        return new RoundedButton(text);
+        return new RoundedButton(text, GREEN);
+    }
+
+    /** A rounded button in any colour (for example red for "Sell"). */
+    public static JButton createButton(String text, Color color) {
+        return new RoundedButton(text, color);
     }
 
     /**
@@ -132,8 +142,11 @@ public class Theme {
      * It gets a bit darker when the mouse is over it.
      */
     private static class RoundedButton extends JButton {
-        RoundedButton(String text) {
+        private Color color;
+
+        RoundedButton(String text, Color color) {
             super(text);
+            this.color = color;
             setFont(font(Font.BOLD, 15));
             setForeground(Color.WHITE);
             setContentAreaFilled(false);    // we paint the background ourselves
@@ -148,11 +161,88 @@ public class Theme {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getModel().isRollover() ? GREEN_DARK : GREEN);
+            g2.setColor(getModel().isRollover() ? blend(color, Color.BLACK, 0.2) : color);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
             g2.dispose();
             super.paintComponent(g);        // draws the text on top
         }
+    }
+
+    /** Formats an amount of money, for example "₹ 1,234.50". */
+    public static String money(double amount) {
+        return RUPEE + " " + String.format("%,.2f", amount);
+    }
+
+    /** A small card with a caption on top and a big value label underneath. */
+    public static JPanel createStatCard(String caption, JLabel valueLabel) {
+        CardPanel card = new CardPanel();
+        card.setLayout(new BorderLayout(0, 6));
+        card.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
+        card.add(createCaption(caption), BorderLayout.NORTH);
+        valueLabel.setFont(font(Font.BOLD, 20));
+        valueLabel.setForeground(TEXT);
+        card.add(valueLabel, BorderLayout.CENTER);
+        return card;
+    }
+
+    /**
+     * Gives a table the dark style used in the whole app:
+     * striped rows, bold first column, right-aligned numbers, a green highlight
+     * for the selected row, and green/red text for values that start with + or -
+     * (and for the words BUY and SELL).
+     */
+    public static void styleTable(final JTable table) {
+        table.setRowHeight(40);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setBackground(SURFACE);
+        table.setFillsViewportHeight(true);
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getTableHeader().setPreferredSize(new Dimension(100, 38));
+
+        // How a normal cell is drawn
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(t, value, false, false, row, column);
+                String text = String.valueOf(value);
+
+                Color background = (row % 2 == 0) ? SURFACE : ROW_ALT;
+                if (isSelected) {
+                    background = blend(background, GREEN, 0.25);
+                }
+                setBackground(background);
+                setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 16));
+                setHorizontalAlignment(column == 0 ? SwingConstants.LEFT : SwingConstants.RIGHT);
+                setFont(font(column == 0 ? Font.BOLD : Font.PLAIN, 14));
+
+                setForeground(TEXT);
+                if (text.startsWith("+") || text.equals("BUY")) {
+                    setForeground(GREEN);
+                } else if (text.startsWith("-") || text.equals("SELL")) {
+                    setForeground(RED);
+                }
+                return this;
+            }
+        });
+
+        // How the header is drawn
+        table.getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(t, value, false, false, row, column);
+                setBackground(BACKGROUND);
+                setForeground(MUTED);
+                setFont(font(Font.BOLD, 11));
+                setHorizontalAlignment(column == 0 ? SwingConstants.LEFT : SwingConstants.RIGHT);
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER),
+                        BorderFactory.createEmptyBorder(0, 16, 0, 16)));
+                return this;
+            }
+        });
     }
 
     /** A panel with rounded corners and a thin border, used as a "card". */
