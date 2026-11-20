@@ -136,11 +136,11 @@ public class TradePanel extends JPanel implements MarketListener {
     // The form on the right: selected stock, quantity, info lines, buttons, message.
     private JPanel buildForm() {
         Theme.CardPanel card = new Theme.CardPanel();
-        card.setLayout(new BorderLayout(0, 14));
-        card.setBorder(BorderFactory.createEmptyBorder(24, 26, 24, 26));
+        card.setLayout(new BorderLayout(0, 6));
+        card.setBorder(BorderFactory.createEmptyBorder(16, 26, 14, 26));
 
         // Top: which stock is selected, and its price
-        JPanel top = new JPanel(new GridLayout(3, 1, 0, 4));
+        JPanel top = new JPanel(new GridLayout(3, 1, 0, 0));
         top.setOpaque(false);
         top.add(Theme.createCaption("SELECTED STOCK"));
         stockLabel = new JLabel("Select a stock");
@@ -154,24 +154,32 @@ public class TradePanel extends JPanel implements MarketListener {
         card.add(top, BorderLayout.NORTH);
 
         // Middle: quantity field and information lines
-        JPanel middle = new JPanel(new GridLayout(5, 1, 0, 6));
+        JPanel middle = new JPanel(new BorderLayout(0, 6));
         middle.setOpaque(false);
-        middle.add(Theme.createCaption("QUANTITY"));
+        JPanel quantityBlock = new JPanel(new BorderLayout(0, 6));
+        quantityBlock.setOpaque(false);
+        quantityBlock.add(Theme.createCaption("QUANTITY"), BorderLayout.NORTH);
         quantityField = new JTextField();
         Theme.styleField(quantityField);
+        quantityField.setPreferredSize(new Dimension(100, 38));
         quantityField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 updateInfo();               // show the new total while typing
             }
         });
-        middle.add(quantityField);
+        quantityBlock.add(quantityField, BorderLayout.CENTER);
+        middle.add(quantityBlock, BorderLayout.NORTH);
+
+        JPanel infoLines = new JPanel(new GridLayout(3, 1, 0, 0));
+        infoLines.setOpaque(false);
         totalLabel = createInfoLabel();
         ownedLabel = createInfoLabel();
         walletLabel = createInfoLabel();
-        middle.add(totalLabel);
-        middle.add(ownedLabel);
-        middle.add(walletLabel);
+        infoLines.add(totalLabel);
+        infoLines.add(ownedLabel);
+        infoLines.add(walletLabel);
+        middle.add(infoLines, BorderLayout.CENTER);
         card.add(middle, BorderLayout.CENTER);
 
         // Bottom: Buy and Sell buttons, and the message
@@ -199,7 +207,7 @@ public class TradePanel extends JPanel implements MarketListener {
 
         messageLabel = new JLabel(" ");
         messageLabel.setFont(Theme.font(Font.PLAIN, 13));
-        messageLabel.setPreferredSize(new Dimension(100, 40));
+        messageLabel.setPreferredSize(new Dimension(100, 34));
         bottom.add(messageLabel, BorderLayout.CENTER);
         card.add(bottom, BorderLayout.SOUTH);
 
